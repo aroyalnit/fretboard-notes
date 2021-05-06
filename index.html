@@ -129,34 +129,31 @@
       document.getElementById('currentNote').innerHTML = allNotes[index]
       document.getElementById('nextNote').innerHTML = `NEXT (${index+1} of ${allNotes.length})`
       setTimer()
-      ;(async () => {
-        try {
-          const wakeLock = await navigator.wakeLock.request('screen')
-        } catch (err) {
-          console.error(`${err.name}, ${err.message}`)
-        }
+      try {
+        navigator.wakeLock.request('screen')
+      } catch (err) {
+        console.error(`${err.name}, ${err.message}`)
+      }
 
-        let stringForm = document.getElementById('strings')
-        stringForm.addEventListener('change', (event) => {
-          let elements = stringForm.elements
-          strings.forEach((string) => {
-            stringSelections[string] = elements[string].checked
-          })
-          setAllNotes()
+      let stringForm = document.getElementById('strings')
+      stringForm.addEventListener('change', (event) => {
+        let elements = stringForm.elements
+        strings.forEach((string) => {
+          stringSelections[string] = elements[string].checked
         })
+        setAllNotes()
+      })
 
-        let variationsForm = document.getElementById('variations')
-        variationsForm.addEventListener('change', (event) => {
-          let elements = variationsForm.elements
-          variations.forEach((variation) => {
-            variationSelections[variation] = elements[variation].checked
-          })
-          setAllNotes()
+      let variationsForm = document.getElementById('variations')
+      variationsForm.addEventListener('change', (event) => {
+        let elements = variationsForm.elements
+        variations.forEach((variation) => {
+          variationSelections[variation] = elements[variation].checked
         })
-      })()
+        setAllNotes()
+      })
       setAllNotes()
     }
-
 
     function setAllNotes()
     {
@@ -197,9 +194,7 @@
         document.getElementById('currentNote').innerHTML = allNotes[index]
         document.getElementById('nextNote').innerHTML = `NEXT (${index+1} of ${allNotes.length})`
       }
-
     }
-
 
     function setTimer() {
       timer = setTimeout(() => {
