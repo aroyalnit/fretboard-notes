@@ -21,9 +21,17 @@ variations.forEach((variation) => {
 let timer
 let allNotes = []
 let index = 0
-
+let cookie = JSON.parse(document.cookie.split(';')[0])
+if (cookie) {
+  if (cookie.variationSelections !== undefined) {
+    variationSelections = cookie.variationSelections
+  }
+  if (cookie.stringSelections !== undefined) {
+    stringSelections = cookie.stringSelections
+  }
+}
 window.onload = function() {
-
+  setCheckboxes()
   document.getElementById("content").addEventListener("click", function(e){
     doNextNote()
   })
@@ -50,6 +58,7 @@ window.onload = function() {
       stringSelections[string] = elements[string].checked
     })
     setAllNotes()
+    setPreferences()
   })
 
   let variationsForm = document.getElementById('variations')
@@ -59,8 +68,35 @@ window.onload = function() {
       variationSelections[variation] = elements[variation].checked
     })
     setAllNotes()
+    setPreferences()
   })
   setAllNotes()
+}
+
+
+
+function setCheckboxes() {
+  let stringForm = document.getElementById('strings')
+  let variationsForm = document.getElementById('variations')
+
+  let stringElements = stringForm.elements
+  let variationElements = variationsForm.elements
+
+  strings.forEach((string) => {
+    stringElements[string].checked = stringSelections[string]
+  })
+
+  variations.forEach((variation) => {
+    variationElements[variation].checked = variationSelections[variation]
+  })
+}
+
+function setPreferences() {
+  let combinedPreferences = {
+    stringSelections: stringSelections,
+    variationSelections: variationSelections
+  }
+  document.cookie = JSON.stringify(combinedPreferences)
 }
 
 function setAllNotes()
