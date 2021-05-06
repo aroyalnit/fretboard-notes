@@ -21,7 +21,14 @@ variations.forEach((variation) => {
 let timer
 let allNotes = []
 let index = 0
-let cookie = JSON.parse(document.cookie.split(';')[0])
+let cookie
+try {
+  cookie = JSON.parse(document.cookie.split(';')[0])
+}
+catch(e) {
+  cookie = false
+}
+
 if (cookie) {
   if (cookie.variationSelections !== undefined) {
     variationSelections = cookie.variationSelections
