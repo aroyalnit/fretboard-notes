@@ -1,0 +1,115 @@
+<html>
+<head>
+<style type='text/css'>
+  #content {
+    width: 100%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  #content #currentNote {
+    font-size: 5em;
+    padding-bottom: 50px;
+  }
+  .items {
+    white-space: nowrap;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body onclick='doNextNote()'>
+  <div id='content'>
+    <div class='items'>
+      <p id='currentNote'></p>
+      <p id='nextNote'></p>
+    </div>
+  </div>
+
+
+  <script type='text/javascript'>
+    let notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    let strings = ['E', 'A', 'D', 'G', 'B']
+    let variations = ['', '&#9839;', '&#9837;']
+
+    let timer
+
+    let allNotes = []
+
+    strings.forEach((string) => {
+      notes.forEach((note) => {
+        variations.forEach((variation) => {
+          allNotes.push(`<b>${note}${variation}</b> on <b>${string}</b> string`)
+        })
+      })
+    })
+
+
+    allNotes = allNotes.sort( () => .5 - Math.random())
+    let index = 0
+
+    window.onload = function() {
+      document.getElementById('currentNote').innerHTML = allNotes[index]
+      document.getElementById('nextNote').innerHTML = `NEXT (${index+1} of ${allNotes.length})`
+      setTimer()
+      ;(async () => {
+        try {
+          const wakeLock = await navigator.wakeLock.request('screen')
+        } catch (err) {
+          console.log(`${err.name}, ${err.message}`)
+        }
+      })()
+
+    }
+
+
+
+    function reset() {
+      index = 0
+      doNextNote()
+    }
+
+    function doNextNote() {
+      relax()
+      index++
+      if (index == allNotes.length) {
+        document.getElementById('currentNote').innerHTML = 'ALL COMPLETE!'
+        document.getElementById('nextNote').innerHTML = `Reset: ${allNotes.length} complete`
+      }
+      else if (index > allNotes.length) {
+        index = 0;
+        doNextNote()
+      }
+      else {
+        setTimer()
+        document.getElementById('currentNote').innerHTML = allNotes[index]
+        document.getElementById('nextNote').innerHTML = `NEXT (${index+1} of ${allNotes.length})`
+      }
+
+    }
+
+
+    function setTimer() {
+      timer = setTimeout(() => {
+        panic()
+      }, 4000)
+    }
+
+    function relax() {
+      clearTimeout(timer)
+      document.body.style.background = 'white'
+    }
+
+    function panic() {
+      document.body.style.background = 'red'
+    }
+
+  </script>
+</body>
+</html>
