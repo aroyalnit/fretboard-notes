@@ -103,7 +103,9 @@ function setPreferences() {
     stringSelections: stringSelections,
     variationSelections: variationSelections
   }
-  document.cookie = JSON.stringify(combinedPreferences)
+  let d = new Date()
+  d = new Date(d.getTime() +10000*60*60*24*365);
+  document.cookie = JSON.stringify(combinedPreferences) + "; expires="+d.toGMTString()+';'
 }
 
 function setAllNotes()
