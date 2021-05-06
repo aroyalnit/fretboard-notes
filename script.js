@@ -41,6 +41,7 @@ window.onload = function() {
   setCheckboxes()
   document.getElementById("content").addEventListener("click", function(e){
     doNextNote()
+    document.getElementById("settings-expand").style.display = 'none'
   })
 
   document.getElementById("settings-menu").addEventListener("click", function(e) {
