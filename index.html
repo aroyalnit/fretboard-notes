@@ -1,8 +1,8 @@
 <html>
 <head>
+  <title>Fretboard Note Trainer</title>
 <style type='text/css'>
-  #content {
-    width: 100%;
+  #content, #settings {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -10,9 +10,36 @@
     -ms-user-select: none;
     user-select: none;
   }
+  #content {
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+  }
   #content #currentNote {
     font-size: 5em;
     padding-bottom: 50px;
+  }
+  #settings {
+    z-index: 10;
+    position: absolute;
+    right: 0px;
+  }
+  #settings #settings-menu {
+    cursor: pointer;
+    position: absolute;
+    right: 0px;
+    right: 10px;
+  }
+  #settings #settings-expand {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #c0c0c0;
+    display: none;
+    width: 180px;
+    opacity: 0.8;
+    padding: 5px;
+    border-radius: 10px;
   }
   .items {
     white-space: nowrap;
@@ -24,37 +51,74 @@
   }
 </style>
 </head>
-<body onclick='doNextNote()'>
-  <div id='content'>
-    <div class='items'>
-      <p id='currentNote'></p>
-      <p id='nextNote'></p>
+<body>
+  <div id="settings">
+    <div id="settings-menu">&#x2630;</div>
+    <div id="settings-expand">
+      <div class="strings">
+        <form id="strings">
+          <input type="checkbox" name="E" checked>E</input>
+          <input type="checkbox" name="A" checked>A</input>
+          <input type="checkbox" name="D" checked>D</input>
+          <input type="checkbox" name="G" checked>G</input>
+          <input type="checkbox" name="B" checked>B</input>
+        </form>
+      </div>
+      <div class="variations">
+        <form id="variations">
+          <input type="checkbox" name="natural" checked >&natur;</input>
+          <input type="checkbox" name="flat" checked >&flat;</input>
+          <input type="checkbox" name="sharp" checked >&sharp;</input>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="content">
+
+    <div class="items">
+      <p id="currentNote"></p>
+      <p id="nextNote"></p>
     </div>
   </div>
 
 
-  <script type='text/javascript'>
+  <script type="text/javascript">
     let notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     let strings = ['E', 'A', 'D', 'G', 'B']
-    let variations = ['', '&#9839;', '&#9837;']
+    let variations = ['natural', 'flat', 'sharp']
 
-    let timer
+    let variationSymbols = {
+      'natural': '',
+      'flat': '&flat;',
+      'sharp': '&sharp;'
+    }
 
-    let allNotes = []
-
-    strings.forEach((string) => {
-      notes.forEach((note) => {
-        variations.forEach((variation) => {
-          allNotes.push(`<b>${note}${variation}</b> on <b>${string}</b> string`)
-        })
-      })
+    let stringSelections = {}
+    notes.forEach((note) => {
+      stringSelections[note] = true
     })
 
+    let variationSelections = {}
+    variations.forEach((variation) => {
+      variationSelections[variation] = true
+    })
 
-    allNotes = allNotes.sort( () => .5 - Math.random())
+    let timer
+    let allNotes = []
     let index = 0
 
     window.onload = function() {
+
+      document.getElementById("content").addEventListener("click", function(e){
+        doNextNote()
+      })
+
+      document.getElementById("settings-menu").addEventListener("click", function(e) {
+        let currentDisplay = window.getComputedStyle(document.getElementById("settings-expand"), null).getPropertyValue("display")
+        let newDisplay = currentDisplay == 'none' ? 'inline' : 'none'
+        document.getElementById("settings-expand").style.display = newDisplay
+      })
+
       document.getElementById('currentNote').innerHTML = allNotes[index]
       document.getElementById('nextNote').innerHTML = `NEXT (${index+1} of ${allNotes.length})`
       setTimer()
@@ -62,16 +126,51 @@
         try {
           const wakeLock = await navigator.wakeLock.request('screen')
         } catch (err) {
-          console.log(`${err.name}, ${err.message}`)
+          console.error(`${err.name}, ${err.message}`)
         }
-      })()
 
+        let stringForm = document.getElementById('strings')
+        stringForm.addEventListener('change', (event) => {
+          let elements = stringForm.elements
+          strings.forEach((string) => {
+            stringSelections[string] = elements[string].checked
+          })
+          setAllNotes()
+        })
+
+        let variationsForm = document.getElementById('variations')
+        variationsForm.addEventListener('change', (event) => {
+          let elements = variationsForm.elements
+          variations.forEach((variation) => {
+            variationSelections[variation] = elements[variation].checked
+          })
+          setAllNotes()
+        })
+      })()
+      setAllNotes()
     }
 
 
+    function setAllNotes()
+    {
+      allNotes = []
+      strings.forEach((string) => {
+        if (stringSelections[string]) {
+          notes.forEach((note) => {
+            variations.forEach((variation) => {
+              if (variationSelections[variation]) {
+                allNotes.push(`<b>${note}${variationSymbols[variation]}</b> on <b>${string}</b> string`)
+              }
+            })
+          })
+        }
+      })
+      reset()
+    }
 
     function reset() {
       index = 0
+      allNotes = allNotes.sort( () => .5 - Math.random())
       doNextNote()
     }
 
